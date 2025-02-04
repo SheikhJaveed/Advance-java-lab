@@ -1,0 +1,52 @@
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Movie ticket booking</h1>
+	<form action="Movies.jsp" method="POST">
+		User:<input type="text" name="user" required><br><br>
+		Age:<input type="text" name="age" required><br><br>
+		<input type="submit" value="submit">
+	</form>
+</body>
+</html>
+
+<-- Movies.jsp -->
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Movie ticket pricing</h1>
+	<%
+		String name=request.getParameter("user");
+		int age=Integer.parseInt(request.getParameter("age"));
+		int price;
+		
+		if(age>62){
+			price=50;
+		}
+		else if(age<10){
+			price=30;
+		}
+		else{
+			price=80;
+		}
+		
+	%>
+	<p>Name:<%=name %></p>
+	<p>Age:<%=age %></p>
+	<p>Ticket price:<%= price %></p>
+	
+</body>
+</html>

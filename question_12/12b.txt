@@ -1,0 +1,67 @@
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Session management</h1>
+	<form action="Welcome.jsp" method="POST">
+		UserName: <input type="text" name="username" required><br><br>
+		Password: <input type="text" name="password" required><br><br>
+		<input type="submit" value="Login">
+	</form>
+</body>
+</html>
+
+
+<-- Welcome.jsp -->
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		String username=request.getParameter("username");
+		String password=request.getParameter("password");
+		
+		session.setAttribute("username", username);
+		session.setAttribute("password", password);
+		
+		if("User".equals(session.getAttribute("username")) && "User123".equals(session.getAttribute("password"))){
+			out.println("<h1>Welcome! "+username+"</h1>");
+		}else{
+			out.println("<h1>Invalid username or password.");
+		}
+	%>
+	<br>
+	<a href="Logout.jsp">Logout</a>
+</body>
+</html>
+
+
+<-- Logout.jsp -->
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		session.invalidate();
+	%>
+	<h1>You have been logged out.</h1>
+	<a href="index.html">Register</a>
+</body>
+</html>

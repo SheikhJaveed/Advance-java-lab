@@ -1,0 +1,120 @@
+<-- Faculty DB -->
+
+package mypack;
+
+import java.sql.*;
+
+public class Faculty_11b {
+	private static final String URL = "jdbc:mysql://localhost:3306/dbName", USER = "root", PASS = "";
+
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            stmt = conn.createStatement();
+            
+            String createDB="create database FacultyInfo";
+			stmt.executeUpdate(createDB);
+			System.out.println("created DB");
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS Faculty (" +
+                    "subID int primary key, " +
+                    "subName VARCHAR(20), " +
+                    "facultyID int) ";
+            stmt.executeUpdate(createTableSQL);
+            System.out.println("Table 'Faculty' created or already exists.");
+
+            String insertDataSQL = "INSERT INTO Faculty (subID, subName, facultyID) VALUES " +
+                    "(1, 'Advance Java', 11), " +
+                    "(2, 'Python',12), " +
+                    "(3, 'C++',13 ), " +
+                    "(4, 'DBMS',14)" ;
+            stmt.executeUpdate(insertDataSQL);
+            System.out.println("Sample data inserted into 'Faculty' table.");
+
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Update Faculty Information</h1>
+	<form action="Subjects" method="POST">
+		FacultyID: <input type="text" name="facultyId" required><br><br>
+		Subject name: <input type="text" name="subName" required><br><br>
+		<input type="submit" value="Update">
+	</form>
+</body>
+</html>
+
+<-- Subjects.java -->
+
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.sql.*;
+import java.io.*;
+/**
+ * Servlet implementation class Subjects
+ */
+@WebServlet("/Subjects")
+public class Subjects extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	 
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+		final String URL = "jdbc:mysql://localhost:3306/FacultyInfo", USER = "root", PASS = "";
+		
+		String facultyID = request.getParameter("facultyId");
+		String subName = request.getParameter("subName");
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection conn = DriverManager.getConnection(URL,USER,PASS);
+			Statement stmt = conn.createStatement();
+			
+			String query1="update Faculty set subName=? where facultyID=?";
+			PreparedStatement pstmt = conn.prepareStatement(query1);
+			pstmt.setString(1, subName);
+			pstmt.setInt(2, Integer.parseInt(facultyID));
+			int rowsUpdated=pstmt.executeUpdate();
+			
+			out.println("<h2>Subjects alloted to facultyID "+facultyID+"</h2>");
+			
+			String query2="select * from Faculty where facultyID=?";
+			pstmt=conn.prepareStatement(query2);
+			pstmt.setInt(1, Integer.parseInt(facultyID));
+			ResultSet rs = pstmt.executeQuery();
+			
+			out.println("<table border='1'><tr><th>SubID</th><th>SubName</th><th>FacultyID</th></tr>");
+			while(rs.next()) {
+				out.println("<tr><td>"+rs.getInt("subID")+"</td><td>"+rs.getString("subName")+"</td><td>"+rs.getInt("facultyID")+"</td></tr>");
+			}
+			out.println("</table>");
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+

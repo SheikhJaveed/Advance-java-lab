@@ -1,0 +1,54 @@
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Check your Visit Count</h1>
+	<form action="CountVisit" method="GET">
+		<input type="submit" value="Display Visit Count">
+	</form>
+</body>
+</html>
+
+<-- CountVisit.java -->
+
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
+
+import java.io.*;
+/**
+ * Servlet implementation class CountVisit
+ */
+@WebServlet("/CountVisit")
+public class CountVisit extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+    
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out = response.getWriter();
+		HttpSession session1=request.getSession();
+		Integer visitCount=(Integer) session1.getAttribute("visitCount");
+		
+		if(visitCount==null) {
+			visitCount=1;
+			session1.setAttribute("visitCount",visitCount);
+			out.println("<h1>Welcome! This is your first visit.</h1>");
+		}else {
+			visitCount++;
+			session1.setAttribute("visitCount", visitCount);
+			out.println("<h1>Welcome back! You have visited this page "+ visitCount+" times"+ "</h1>");
+		}
+	}
+
+	
+}
