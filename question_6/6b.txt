@@ -1,0 +1,118 @@
+<-- Database for police station -->
+
+package mypack;
+
+import java.sql.*;
+
+public class Police_stationDB_6b {
+	private static final String URL="jdbc:mysql://localhost:3306/Police_station",USER="root",PASS="";
+	
+	public static void main(String[] args) throws SQLException {
+		try {
+			
+			Connection conn=DriverManager.getConnection(URL,USER,PASS);
+			Statement stmt=conn.createStatement();
+			
+			String createDB = "CREATE DATABASE IF NOT EXISTS Police_station" ;
+            stmt.executeUpdate(createDB);
+            System.out.println("Database created ");
+			
+			String createTable = "CREATE TABLE IF NOT EXISTS Police_Stations ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "area VARCHAR(100) NOT NULL, "
+                    + "phone_number VARCHAR(20) NOT NULL, "
+                    + "address VARCHAR(255) NOT NULL)";
+            stmt.executeUpdate(createTable);
+            System.out.println("Table created or already exists.");
+
+            // Step 3: Insert Sample Data
+            String insertData1 = "INSERT INTO Police_Stations (area, phone_number, address) VALUES "
+                    + "('Downtown', '9876543210', '123 Main St, City')";
+            String insertData2 = "INSERT INTO Police_Stations (area, phone_number, address) VALUES "
+                    + "('Uptown', '8765432109', '456 Elm St, City')";
+            String insertData3 = "INSERT INTO Police_Stations (area, phone_number, address) VALUES "
+                    + "('Suburban', '7654321098', '789 Oak St, Suburb')";
+
+            stmt.executeUpdate(insertData1);
+            stmt.executeUpdate(insertData2);
+            stmt.executeUpdate(insertData3);
+
+            System.out.println("Data inserted successfully.");
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Police information</h1>
+	<form action="Police" method="POST">
+		Phone number:<input type="text" name="phoneNumber" required>
+		<input value="submit" type="submit"> 
+	</form>
+</body>
+</html>
+
+<-- Police.java -->
+
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+import java.sql.*;
+import java.io.*;
+/**
+ * Servlet implementation class Police
+ */
+@WebServlet("/Police")
+public class Police extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
+	private static final String URL = "jdbc:mysql://localhost:3306/Police_station", USER = "root", PASS = "SheikhSQL@94";
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		PrintWriter out=response.getWriter();
+		String phoneNumber=request.getParameter("phoneNumber");
+		response.setContentType("text/html");
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection conn=DriverManager.getConnection(URL,USER,PASS);
+			PreparedStatement pstmt=null;
+			
+			String queryString="select * from Police_stations where phone_number=?";
+			pstmt = conn.prepareStatement(queryString);
+			pstmt.setString(1, phoneNumber);
+			
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+                out.println("<h2>Police Station Details:</h2>");
+                out.println("Area: " + rs.getString("area") + "<br>");
+                out.println("Phone Number: " + rs.getString("phone_number") + "<br>");
+                out.println("Address: " + rs.getString("address") + "<br>");
+            } else {
+                out.println("<h2>No police station found for the given phone number.</h2>");
+            }
+			
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

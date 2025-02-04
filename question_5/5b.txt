@@ -1,0 +1,58 @@
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Voting page</h1>
+	<form action="Voting_5b" method="POST">
+		First Name:<input type="text" id="fname" name="fname" required><br><br>
+		Last Name:<input type="text" id="lname" name="lname" required><br><br>
+		Email:<input type="email" id="email" name="email" required><br><br>
+		Date of birth:<input type="date" id="dob" name="dob" required><br><br>
+		<input value="submit" type="submit">
+	</form>
+</body>
+</html>
+
+<-- Voting_5b.java -->
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.*;
+import java.time.*;
+/**
+ * Servlet implementation class Voting_5b
+ */
+@WebServlet("/Voting_5b")
+public class Voting_5b extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out=response.getWriter();
+		String fname=request.getParameter("fname");
+		String lname=request.getParameter("lname");
+		String email=request.getParameter("email");
+		String dob=request.getParameter("dob");
+		
+		LocalDate birthDate=LocalDate.parse(dob);
+		LocalDate currDate=LocalDate.now();
+		int age=Period.between(birthDate, currDate).getYears();
+		
+		if(age>=18) {
+			out.println("<h1>You are eligible to vote</h1>");
+		}else {
+			out.println("<h1>You are not eligible to vote</h1>");
+		}
+	}
+
+}

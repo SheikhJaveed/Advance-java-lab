@@ -1,0 +1,127 @@
+<-- Database for Books -->
+
+package mypack;
+
+import java.sql.*;
+
+public class BookDB_7b {
+	private static final String URL="jdbc:mysql://localhost:3306/dbName",USER="root",PASS="";
+	
+	public static void main(String[] args) {
+		try {
+			Connection conn=DriverManager.getConnection(URL,USER,PASS);
+			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+            String createDB="create database Books";
+			stmt.executeUpdate(createDB);
+			System.out.println("created DB");
+			
+			String createTable = "CREATE TABLE IF NOT EXISTS Book ("
+                    + "Book_No INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "Title VARCHAR(255) NOT NULL, "
+                    + "Author VARCHAR(255) NOT NULL, "
+                    + "Publication VARCHAR(255) NOT NULL, "
+                    + "Price DECIMAL(10,2) NOT NULL)";
+            stmt.executeUpdate(createTable);
+            System.out.println("Table created or already exists.");
+
+            // Step 3: Insert Sample Data directly using Statement
+            String insertData1 = "INSERT INTO Book (Title, Author, Publication, Price) VALUES "
+                    + "('Java Programming', 'James Gosling', 'Sun Microsystems', 599.99)";
+            String insertData2 = "INSERT INTO Book (Title, Author, Publication, Price) VALUES "
+                    + "('Python Basics', 'Guido van Rossum', 'O’Reilly Media', 499.50)";
+            String insertData3 = "INSERT INTO Book (Title, Author, Publication, Price) VALUES "
+                    + "('Data Structures', 'Robert Lafore', 'Pearson', 699.00)";
+
+            stmt.executeUpdate(insertData1);
+            stmt.executeUpdate(insertData2);
+            stmt.executeUpdate(insertData3);
+
+            System.out.println("Data inserted successfully.");
+            
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Book details</h1>
+	<form action="insertBook.jsp" method="POST">
+		Book number:<input type="text" name="bookno" required><br><br>
+		Book title:<input type="text" name="title" required><br><br>
+		Author:<input type="text" name="author" required><br><br>
+		Publication:<input type="text" name="publication" required><br><br>
+		Price:<input type="text" name="price" required><br><br>
+		<input value="submit" type="submit">
+	</form>
+</body>
+</html>
+
+
+<-- insertBook.jsp -->
+
+<%@page import="java.io.PrintWriter"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" import="java.io.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		final String URL="jdbc:mysql://localhost:3306/books",USER="root",PASS="";
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		
+		try{
+			Connection conn=DriverManager.getConnection(URL,USER,PASS);
+			PrintWriter out1=response.getWriter();
+			String bookno=request.getParameter("bookno");
+			String title=request.getParameter("title");
+			String author = request.getParameter("author");
+	        String publication = request.getParameter("publication");
+	        String price = request.getParameter("price");
+	        
+	        String query="INSERT INTO BOOK(Book_No, Title, Author, Publication, Price) values (?,?,?,?,?)";
+	        PreparedStatement pstmt=conn.prepareStatement(query);
+	        pstmt.setInt(1,Integer.parseInt(bookno));
+	        pstmt.setString(2, title);
+            pstmt.setString(3, author);
+            pstmt.setString(4, publication);
+            pstmt.setInt(5, Integer.parseInt(price));
+            pstmt.executeUpdate();
+            
+            out1.println("<h1>Book details inserted successfully</h1>");
+            
+            String query2="select * from Book where Title=?";
+            pstmt=conn.prepareStatement(query2);
+            pstmt.setString(1,title);
+            
+            ResultSet rs=pstmt.executeQuery();
+            
+            out1.println("<table border='1'><tr><th>Book no</th><th>Title</th><th>Author</th><th>Publication</th><th>Price</th></tr>");
+            
+            
+            while(rs.next()){
+            	out1.println("<tr><td>"+rs.getInt("Book_No")+"</td><td>"+ rs.getString("Title") + "</td><td>" + rs.getString("Author") + "</td><td>" + rs.getString("Publication") + "</td><td>" + rs.getInt("Price") + "</td></tr>");
+            }
+            out1.println("</table>");
+            
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+	%>
+</body>
+</html>
