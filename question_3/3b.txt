@@ -1,0 +1,80 @@
+<-- index.html -->
+
+    <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Calculator</h1>
+	<form action="Calculator" method="post">
+	First number:<input type="text" name="n1" required><br><br>
+	Second number:<input type="text" name="n2" ><br><br>
+	
+	Select an operator:<br><br>
+	<input type="radio" name="op" value="addition">Addition<br><br>
+	<input type="radio" name="op" value="subtraction">Subtraction<br><br>
+	<input type="radio" name="op" value="multiplication">Multiplication<br><br>
+	<input type="radio" name="op" value="division">Division<br><br>
+	<input type="radio" name="op" value="exponent">Exponent<br><br>
+	
+	<input value="Submit" type="submit">
+	
+	</form>
+</body>
+</html>
+
+
+<-- Calculator.java -->
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+/**
+ * Servlet implementation class Calculator
+ */
+@WebServlet("/Calculator")
+public class Calculator extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out=response.getWriter();
+		String n1=request.getParameter("n1");
+		String n2=request.getParameter("n2");
+		String op=request.getParameter("op");
+		
+		double a=Double.parseDouble(n1);
+		double b=Double.parseDouble(n2);
+		double res=0.0;
+		
+		if(op.equals("addition")) {
+			res=a+b;
+		}
+		else if(op.equals("subtraction")) {
+			res=a-b;
+		}
+		else if(op.equals("multiplication")) {
+			res=a*b;
+		}
+		else if(op.equals("division")) {
+			if(b!=0) {
+				res=a/b;
+			}
+			else {
+				res=Double.MAX_VALUE;
+			}
+		}
+		else if(op.equals("exponent")) {
+			res=Math.exp(a);
+		}
+		
+		out.println("<h1> The result is "+String.valueOf(res)+"</h1>");
+	}
+
+}

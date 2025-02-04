@@ -1,0 +1,121 @@
+
+/* Note: First create a DB containing student data and then use commands in jsp to extract data from DB */
+
+
+package mypack;
+
+import java.sql.*;
+public class Student_4b {
+	static final String URL = "jdbc:mysql://localhost:3306/dbName"; 
+    static final String USER = "root";  
+    static final String PASSWORD = "";  
+
+
+    public static void main(String[] args) {
+        try {
+        	Connection conn = null;
+            Statement stmt = null;
+            // Establish connection to the database
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            stmt = conn.createStatement();
+
+            String createDB="create database employeeDB";
+	    	stmt.executeUpdate(createDB);
+    		System.out.println("DB created");
+
+            // Create table if not exists
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS students (" +
+                                    "student_name VARCHAR(100), " +
+                                    "usn VARCHAR(20) PRIMARY KEY, " +
+                                    "cgpa DECIMAL(3,2));";
+            stmt.executeUpdate(createTableSQL);
+            System.out.println("Table 'students' created successfully!");
+
+            // Direct Insert into table (without user input)
+            String insertSQL1 = "INSERT INTO students (student_name, usn, cgpa) " +
+                                "VALUES ('John Doe', '12345', 8.75)";
+            String insertSQL2 = "INSERT INTO students (student_name, usn, cgpa) " +
+                                "VALUES ('Jane Smith', '12346', 9.00)";
+            String insertSQL3 = "INSERT INTO students (student_name, usn, cgpa) " +
+                                "VALUES ('Jim Brown', '12347', 7.50)";
+
+            // Execute insert queries
+            stmt.executeUpdate(insertSQL1);
+            stmt.executeUpdate(insertSQL2);
+            stmt.executeUpdate(insertSQL3);
+            System.out.println("Records inserted successfully!");
+
+            // Retrieve and display all students
+            System.out.println("\nDisplaying all students:");
+            String selectSQL = "SELECT * FROM students";
+            ResultSet rs = stmt.executeQuery(selectSQL);
+            while (rs.next()) {
+                String studentName = rs.getString("student_name");
+                String studentUsn = rs.getString("usn");
+                double studentCgpa = rs.getDouble("cgpa");
+                System.out.println("Name: " + studentName + ", USN: " + studentUsn + ", CGPA: " + studentCgpa);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+}
+
+
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form action="student_details.jsp" method="GET">
+		<h1>Student details</h1>
+		Enter the USN:<input type="text" name="usn" required>
+		<input value="submit "type="submit"> 
+	</form>
+</body>
+</html>
+
+<-- student_details.jsp -->
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.sql.* %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+        String URL="jdbc:mysql://localhost:3306/studentDB",USER="root",PASS="SheikhSQL@94";
+        Class.forName("com.mysql.cj.jdbc.Driver");	
+        String usn=request.getParameter("usn");
+        Connection conn=null;
+        Statement stmt=null;
+        try{
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            String query="select * from students where usn=?";
+            PreparedStatement pstmt=conn.prepareStatement(query);
+            pstmt.setString(1,usn);
+            ResultSet rs=pstmt.executeQuery();
+            if(rs.next()){
+                String name=rs.getString("student_name");
+                out.println("<h1>Name:"+name+"</h1>");
+                out.println("<h1>USN:"+usn+"</h1>");
+            }else{
+                out.println("<h1>Details not found</h1>");
+            }
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+	 
+	%>
+</body>
+</html>

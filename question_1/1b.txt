@@ -1,0 +1,59 @@
+<-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form action="Payroll" method="POST">
+		<h1>Employee details</h1>
+		Employee name:<input type="text" name="name" required><br>
+		Hours worked:<input type="text" name="hours" required><br>
+		Hourly pay:<input type="text" name="payRate" required><br>
+		<input value="Submit" type="submit">
+	</form>
+</body>
+</html>
+
+<-- Payroll.jsp -->
+
+
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+/**
+ * Servlet implementation class Payroll
+ */
+@WebServlet("/Payroll")
+public class Payroll extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out=response.getWriter();
+		String empName=request.getParameter("name");
+		int hours=Integer.parseInt(request.getParameter("hours"));
+		double payrate=Double.parseDouble(request.getParameter("payRate"));
+		double tax=0.20;
+		
+		double grosspay=hours*payrate;
+		double taxAmt=grosspay*tax;
+		double finalAmt=grosspay-taxAmt;
+		
+		out.println("<h1>Payroll Statement</h1>");
+        out.println("<p>Employee Name: " + empName + "</p>");
+        out.println("<p>Hours Worked: " + hours + "</p>");
+        out.println("<p>Hourly Pay Rate:  " + payrate + "</p>");
+        out.println("<p>Gross Pay:  " + grosspay + "</p>");
+        out.println("<p>Tax (20%):  " + tax + "</p>");
+        out.println("<p>Net Pay:  " + finalAmt + "</p>");
+		
+	}
+
+}

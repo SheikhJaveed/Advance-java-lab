@@ -1,0 +1,111 @@
+package mypack;
+
+import java.sql.*;
+import java.util.*;
+
+public class Q3_a {
+	private static final String URL="jdbc:mysql://localhost:3306/dbName",USER="root",PASS="";
+	
+	public static void main(String[] args) {
+		try {
+			
+			Connection conn=DriverManager.getConnection(URL,USER,PASS);
+			Statement stmt=conn.createStatement();
+
+            String createDB="create database BankDB";
+			stmt.executeUpdate(createDB);
+			System.out.println("created DB");
+            
+			String createTable="create table Bank_Account("+
+			"account_no int primary key,"
+			+"account_name varchar(20),"
+			+"type_of_account varchar(20),"
+			+"balance float)";
+			stmt.executeUpdate(createTable);
+			System.out.println("created table succesfully");
+			
+			//i. insert data using prepared statement
+			String insertData="insert into Bank_Account(account_no,account_name,type_of_account,balance) values (?,?,?,?)";
+			PreparedStatement pstmt=conn.prepareStatement(insertData);
+			pstmt.setInt(1, 1);
+			pstmt.setString(2, "Rahul");
+			pstmt.setString(3, "savings");
+			pstmt.setFloat(4, 2500);
+			pstmt.executeUpdate();
+			
+			pstmt.setInt(1, 2);
+			pstmt.setString(2, "Neha");
+			pstmt.setString(3, "savings");
+			pstmt.setFloat(4, 3000);
+			pstmt.executeUpdate();
+			
+			System.out.println("inserted data successfully");
+			
+			//ii. display table
+			String queryAll="select * from Bank_Account";
+			ResultSet rsAll=stmt.executeQuery(queryAll);
+			printResult(rsAll);
+			
+			//iii. demonstrate commit and rollback
+			conn.setAutoCommit(false);
+			try {
+				pstmt.setInt(1, 5);
+				pstmt.setString(2, "Nikhil");
+				pstmt.setString(3, "business");
+				pstmt.setFloat(4, 20000);
+				pstmt.executeUpdate();
+				
+				pstmt.setInt(1, 6);
+				pstmt.setString(2, "Jack");
+				pstmt.setString(3, "savings");
+				pstmt.setFloat(4,5000);
+				pstmt.executeUpdate();
+				
+				System.out.println("rows inserted, committing transaction");
+				conn.commit();
+				
+			}catch(Exception e) {
+				System.out.println("exception occured,rollback transactions");
+				conn.rollback();
+			}
+			
+			//iv. working of Savepoint
+			Savepoint savepoint1=conn.setSavepoint("savepoint1");
+			try {
+				pstmt.setInt(1, 7);
+				pstmt.setString(2, "Raju");
+				pstmt.setString(3, "business");
+				pstmt.setFloat(4, 40000);
+				pstmt.executeUpdate();
+				
+				pstmt.setInt(1, 8);
+				pstmt.setString(2, "Smith");
+				pstmt.setString(3, "savings");
+				pstmt.setFloat(4,10000);
+				pstmt.executeUpdate();
+				
+				System.out.println("rows inserted,rollback to savepoint1");
+				conn.rollback(savepoint1);
+				
+				System.out.println("rows inserted,committing transactions");
+				conn.commit();
+				
+			}catch(Exception e) {
+				System.out.println("exception occured,rollback transactions");
+				conn.rollback();
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	 private static void printResult(ResultSet rs) throws SQLException {
+	        System.out.println("\nAccount_No\tAccount_Name\tType_of_Account\tBalance");
+	        while (rs.next()) {
+	            System.out.println(rs.getInt("Account_No") + "\t" +
+	                    rs.getString("Account_Name") + "\t" +
+	                    rs.getString("Type_of_Account") + "\t" +
+	                    rs.getInt("Balance"));
+	        }
+	    }
+}

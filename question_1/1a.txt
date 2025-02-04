@@ -1,0 +1,123 @@
+package mypack;
+
+import java.sql.*;
+import java.util.*;
+
+public class Q1_a {
+	private static final String URL="jdbc:mysql://localhost:3306/dbName",USER="root",PASS=""; //replace dbName with your database name
+	
+	public static void main(String[] args) throws SQLException {
+		try {
+			
+		Connection conn=DriverManager.getConnection(URL,USER,PASS);
+		Statement stmt=conn.createStatement();
+		Scanner sc=new Scanner(System.in);
+		
+                //Note: To create the database using the below lines remove '/dbName' from URL and execute these 3 lines 
+
+		String createDB="create database employeeDB";
+		stmt.executeUpdate(createDB);
+		System.out.println("DB created");
+		
+                //Note: First create the database using above commands and then comment out above 3 lines and then write the '/dbName' in the URL and then execute the next lines 
+		
+                String createTable="create table department ("+
+		"deptid int primary key,"+"name varchar(20),"+"year_established int,"+"head_name varchar(20),"+"no_of_emp int)";
+		stmt.executeUpdate(createTable);
+		System.out.println("table created");
+		String insertDataSQL = "INSERT INTO Department (deptid, name, year_established, head_name, no_of_emp) VALUES " +
+                "(1, 'CSE', 2000, 'Arjun', 40), " +
+                "(2, 'ISE', 2000, 'Neha', 38), " +
+                "(3, 'Mech', 1995, 'Sanjay', 32), " +
+                "(4, 'Civil', 1995, 'Ravi', 37), " +
+                "(5, 'EEE', 1998, 'Manoj', 28), " +
+                "(6, 'ECE', 1999, 'Swati', 34), " +
+                "(7, 'Aerospace', 2005, 'Kiran', 22), " +
+                "(8, 'Biotech', 2010, 'Sonia', 25)";
+        stmt.executeUpdate(insertDataSQL);
+        System.out.println("Data inserted successfully");
+
+       
+        //i. display all details
+        String queryAll="select * from department";
+        try(ResultSet rsAll=stmt.executeQuery(queryAll)){
+        	System.out.println("\nAll departments");
+        	printResult(rsAll);
+        }
+        
+        //ii.display details of dept established in 2000 using pstmt
+        System.out.println("Enter the year:");
+        int year=sc.nextInt();
+        String queryYear="select * from department where year_established=?";
+        
+        try(PreparedStatement pstmt=conn.prepareStatement(queryYear)){
+        	pstmt.setInt(1, year);
+        	try(ResultSet rs1=pstmt.executeQuery()){
+        		System.out.println("Details of dept established in "+year);
+        		printResult(rs1);
+        	}
+        }
+        
+        //iii.details of dept by reading deptid and deptname
+        System.out.println("Enter dept_id:");
+        int deptid=sc.nextInt();
+        sc.nextLine();
+        System.out.println("Enter dept name:");
+        String deptname=sc.nextLine();
+        
+        String queryidandname="select * from department where deptid=? and name=?";
+        try(PreparedStatement pstmt=conn.prepareStatement(queryidandname)){
+        	pstmt.setInt(1,deptid);
+        	pstmt.setString(2, deptname);
+        	try(ResultSet rs2=pstmt.executeQuery()){
+        		System.out.println("details using department id and name");
+        		printResult(rs2);
+        	}
+        }
+        
+        //iv. insert a new row
+        
+        System.out.println("Enter dept_id:");
+        deptid=sc.nextInt();
+        System.out.println("Enter dept name:");
+        deptname=sc.next();
+        System.out.println("Enter year:");
+        year=sc.nextInt();
+        System.out.println("Enter hod:");
+        String hod=sc.next();
+        System.out.println("Enter no of emp:");
+        int no_of_emp=sc.nextInt();
+        
+        String queryNew="INSERT INTO Department (deptid, name, year_established, head_name, no_of_emp) VALUES (?, ?, ?, ?, ?)";
+        try(PreparedStatement pstmt=conn.prepareStatement(queryNew)){
+        	pstmt.setInt(1, deptid);
+        	pstmt.setString(2, deptname);
+            pstmt.setInt(3, year);
+            pstmt.setString(4, hod);
+            pstmt.setInt(5, no_of_emp);
+            pstmt.executeUpdate();
+            System.out.println("New department inserted successfully.");
+        }
+        
+        String newQuery2="select * from department where deptid=?";
+        try(PreparedStatement pstmt=conn.prepareStatement(newQuery2)){
+        	pstmt.setInt(1, deptid);
+        	try(ResultSet rs3=pstmt.executeQuery()){
+        		System.out.println("details of new row");
+        		printResult(rs3);
+        	}
+        }
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+        private static void printResult(ResultSet rs) throws SQLException{
+        	System.out.println("ID\tName\t\tYear\t\tHead_name\tNo_of_employees	");
+        	while(rs.next()) {
+        		System.out.println(rs.getInt("deptid")+"\t"+rs.getString("name")+"\t\t"+rs.getInt("year_established")+"\t\t"+rs.getString("head_name")
+        				+"\t\t"+rs.getInt("no_of_emp"));
+        	}
+        }
+        
+	}
+
